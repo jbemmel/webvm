@@ -12,6 +12,7 @@ function setupNetworkInterface()
     });
     const loginElem = document.getElementById("loginLink");
     const statusElem = document.getElementById("networkStatus");
+    const ipCopiedElem = document.getElementById("ipCopied");
     const loginUrlCb = (url) => {
         loginElem.href = url;
         loginElem.target = "_blank";
@@ -32,9 +33,25 @@ function setupNetworkInterface()
     };
     const netmapUpdateCb = (map) => {
         const ip = map.self.addresses[0];
-        statusElem.innerHTML = "IP: "+ip;
+        statusElem.innerText = "IP: "+ip;
+	loginElem.title = "Right click to copy"
+	const rmb_to_copy = (event) => {
+		// To prevent the default contexmenu from showing up when right-clicking..
+		event.preventDefault();
+		// Copy the IP to the clipboard.
+		window.navigator.clipboard.writeText(ip)
+		.catch((msg) => { console.log("network.js: Copy ip to clipboard: Error: " + msg) });
+		statusElem.style.visibility = "hidden";
+		ipCopiedElem.style.visibility = "unset";
+		setTimeout(() => {
+			statusElem.style.visibility = "unset";
+			ipCopiedElem.style.visibility = "hidden";
+		}, 2000);
+	};
+	loginElem.addEventListener("contextmenu", rmb_to_copy);
     };
     loginElem.style.cursor = "pointer";
+    loginElem.title = "Connect to Tailscale";
     statusElem.style.color = "white";
     return {
         loginUrlCb,
@@ -66,6 +83,7 @@ function registerNetworkLogin(cx, { authKey, statusElem, loginElem, loginElemUrl
                 await cx.networkLogin();
                 statusElem.innerHTML = "Starting login...";
                 const url = await loginPromise;
+                statusElem.innerHTML = "Login URL ready...";
                 w.location.href = url;
             }
             waitLogin();

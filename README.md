@@ -1,5 +1,8 @@
 # WebVM
 
+[![Discord server](https://img.shields.io/discord/988743885121548329?color=%235865F2&logo=discord&logoColor=%23fff)](https://discord.gg/yWRr2YnD9c)
+[![Issues](https://img.shields.io/github/issues/leaningtech/webvm)](https://github.com/leaningtech/webvm/issues)
+
 This repository hosts the source code for [https://webvm.io](https://webvm.io), a Linux virtual machine that runs in your browser.
 
 <img src="assets/welcome_to_WebVM_slim.png" width="95%">
@@ -23,6 +26,7 @@ WebVM is powered by the CheerpX virtualization engine, and enables safe, sandbox
 	- Click on `Settings`.
 	- Go to the `Pages` section.
 	- Select `Github Actions` as the source.
+        - If you are using a custom domain, ensure `Enforce HTTPS` is enabled. 
 - Run the workflow.
 	- Click on `Actions`.
 	- Accept the prompt. This is required only once to enable Actions for your fork.
@@ -39,14 +43,32 @@ You can now customize `dockerfiles/debian_mini` to suits your needs, or make a n
 
 From a local `git clone`
 
-- Download the `debian_mini` Ext2 image from [https://github.com/leaningtech/webvm/releases/](https://github.com/leaningtech/webvm/releases/)
+- Download the `debian_mini` Ext2 image from [https://github.com/leaningtech/webvm/releases/](https://github.com/leaningtech/webvm/releases/).
 	- You can also build your own by selecting the "Upload GitHub release" workflow option.
 	- Place the image in the repository root folder.
-- Edit `index.html`
-	- Replace `DEVICE_TYPE` with `"bytes"`
-	- Replace `IMAGE_URL` with the name of the Ext2 image. For example `"debian_mini_20230519_5022088024.ext2"`
-- Start a local HTTP server
+- Edit `index.html`.
+	- Uncomment the default values for `CMD`, `ARGS`, `ENV` and `CWD`.
+	- Replace `DEVICE_TYPE` with `"bytes"`.
+	- Replace `IMAGE_URL` with the name of the Ext2 image. For example `"debian_mini_20230519_5022088024.ext2"`.
+- Start a local HTTP server.
 - Enjoy your local WebVM.
+
+# Example customization: Python3 REPL
+
+The `Deploy` workflow takes into account the `CMD` specified in the Dockerfile. To build a REPL you can simply apply this patch and deploy.
+
+```diff
+diff --git a/dockerfiles/debian_mini b/dockerfiles/debian_mini
+index 2878332..1f3103a 100644
+--- a/dockerfiles/debian_mini
++++ b/dockerfiles/debian_mini
+@@ -15,4 +15,4 @@ WORKDIR /home/user/
+ # We set env, as this gets extracted by Webvm. This is optional.
+ ENV HOME="/home/user" TERM="xterm" USER="user" SHELL="/bin/bash" EDITOR="vim" LANG="en_US.UTF-8" LC_ALL="C"
+ RUN echo 'root:password' | chpasswd
+-CMD [ "/bin/bash" ]
++CMD [ "/usr/bin/python3" ]
+```
 
 # Bugs and Issues
 
@@ -63,7 +85,7 @@ Or come to say hello / share your feedback on [Discord](https://discord.gg/yTNZg
 
 # Thanks to... 
 This project depends on:
-- CheerpX, made by [Leaning Technologies](https://leaningtech.com) for x86 virtualization and Linux emulation
+- [CheerpX](https://labs.leaningtech.com/cheerpx), made by [Leaning Technologies](https://leaningtech.com) for x86 virtualization and Linux emulation
 - xterm.js, [https://xtermjs.org/](https://xtermjs.org/), for providing the Web-based terminal emulator
 - [Tailscale](https://tailscale.com/), for the networking component
 - [lwIP](https://savannah.nongnu.org/projects/lwip/), for the TCP/IP stack, compiled for the Web via [Cheerp](https://github.com/leaningtech/cheerp-meta)
@@ -74,7 +96,7 @@ WebVM depends on the CheerpX x86-to-WebAssembly virtualization technology. A lin
 
 `https://cheerpxdemos.leaningtech.com/publicdeploy/20230517_94/cx.js`
 
-We strongly encourage users _not_ to use the latest build. Plase directly use a specific build to avoid unexpected regressions. Since builds are immutable, if they work for you now they will keep working forever.
+We strongly encourage users _not_ to use the latest build. Please directly use a specific build to avoid unexpected regressions. Since builds are immutable, if they work for you now they will keep working forever.
 
 # License
 
